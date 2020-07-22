@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#|r|e|d|a|n|d|g|r|e|e|n|.|c|o|.|u|k|
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+''' scrape a site with out of sequence css '''
+
 from requests_html import HTMLSession
 import json
 from operator import itemgetter
