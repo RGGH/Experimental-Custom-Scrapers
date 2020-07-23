@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     # get class name from dict, and get the matching text using the
     # "NAME" of the CSS STYLE to match the CLASS NAME - remove oddities
-    print("Next - let's match sorted names with CSS / class names")
+
     ls_len = len(ls)
     print(f"Length of List ={ls_len}")
     for i in range(ls_len):
@@ -72,5 +72,5 @@ if __name__ == "__main__":
                 tx = [x.replace("\xa0", "") for x in tx]
                 print(tx)
     #
-    print (f"{cn} Decriptions of the Used/Demo Gear!")
+    print ("Decriptions of the Used/Demo Gear!")
     #
