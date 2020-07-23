@@ -38,4 +38,11 @@ for i in range (0, len_ind):
 ls.sort(key=itemgetter('left'))
 print(ls)
 
-# next get matching div class name and get its text #
+# next get matching div class name and get its text - remove oddities
+print("Next - let's match sorted names with CSS / class names")
+ll = len(ls)
+print(f"Length of List ={ll}")
+for i in range(ll):
+    cn = (ls[i]['name'])
+    if len(cn) > 30:
+        print(cn)
