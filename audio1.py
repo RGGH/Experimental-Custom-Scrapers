@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #|r|e|d|a|n|d|g|r|e|e|n|.|c|o|.|u|k|
@@ -13,7 +14,7 @@ from operator import itemgetter
 from requests_html import HTMLSession
 #
 #
-ls = []
+
 # Make a List of dictionaries (CSS Name, left value, top value)
 def css_dict(style):
     dct = {}
@@ -23,9 +24,11 @@ def css_dict(style):
         # left px
         left = style.split("left")[1].replace("\n","").replace(":","").strip().split(";")[0].replace("px","")
         dct['left'] = round((int(left)),-2) # left = round more
+        #print(dct['left'])
         # top px
         top = style.split("left")[1].replace("\n","").replace(":","").strip().split(";")[1].split("top")[1].strip().replace("px","")
         dct['top'] = round((int(top)),-1) # top = round less
+        #print(dct['top'])
         ls.append(dct)
     except:
         pass
@@ -38,7 +41,7 @@ if __name__ == "__main__":
     # URL of a Non Sequential CSS Site :
     url='http://audioeden.com/useddemo-gear/4525583102'
     r = session.get(url)
-
+    ls = []
     # Get the <style> css to parse for column px, and row px values
     style = r.html.xpath("//style/text()")
 
@@ -60,35 +63,103 @@ if __name__ == "__main__":
     # "NAME" of the CSS STYLE to match the CLASS NAME - remove oddities
     print("Next - let's match sorted names with CSS / class names")
     ls_len = len(ls)
-    print(f"Length of List ={ls_len}")
-    
-    for i in range(ls_len):
-        cn = (ls[i]['name'])
+    print(f"Length of FULL List ={ls_len}")
+
+    ls_desc = []
+    ls_suggp = []
+    ls_sellp = []
+
+    # ~~~~~~~~~~~~ write DESCRIPTION for Column 'A'
+
+    for i in range (len(ls)):
+        cn = (ls[i]['name']) # <<<
         cl = (ls[i]['left'])
-        ct = (ls[i]['top'])
-        print (cn, cl, ct)
-        if len(cn) > 1: # only print if it represents valid class
-            if cl == 300: # get TEXT
-                ### print(cn, cl, ct)
+        # ct = (ls[i]['top'])
+        #print(i)
+        if cl == 300: # get **DESCRIPTION** TEXT
+            if len(cn) > 1: # only print if it represents valid class
                 cn = cn.replace(".","")
                 divclass = str(cn + " " + "body")
                 ### print(divclass) # Use this variable with f-string to get each speaker description
                 tx = r.html.xpath(f'//div[@class="{divclass}"]/p[@class="p0"]/span[@class="c0"]/text()')
                 tx = [x.replace("\xa0", "") for x in tx]
-                print(tx)
-                txd = tx
-            if cl > 300 and cl < 1000: # GET SELLING PRICE
+
+                try:
+                    if len(tx[0]) > 2:
+                        ls_desc.append(tx)
+                    # else:
+                    #     ls_desc.append("*")
+                except:
+                    pass
+
+    # ~~~~~~~~~~~~ write SELLING PRICE for Column 'B'
+    for i in range (len(ls)):
+        cn = (ls[i]['name'])
+        cl = (ls[i]['left'])
+        ct = (ls[i]['top'])
+        if cl ==900: # GET **SELLING** PRICE
+            if len(cn) > 1: # only print if it represents valid class
                 cn = cn.replace(".","")
                 divclass = str(cn + " " + "body")
+                ### print(divclass) # Use this variable with f-string to get each speaker description
                 tx = r.html.xpath(f'//div[@class="{divclass}"]/p[@class="p0"]/span[@class="c0"]/text()')
-                print(tx)
-                txp = tx
-            if cl > 999 and cl < 1300: # GET SALE PRICE
+                tx = [x.replace("\xa0", "") for x in tx]
+
+                try:
+                    if len(tx[0]) > 2 and len(tx[0]) < 10:
+                        ls_sellp.append(tx)
+
+                except:
+                    pass
+
+    #~~~~~~~~~~~~~~~~ write SUGGESTED PRICE for Column 'C'
+    for i in range (len(ls)):
+        cn = (ls[i]['name'])
+        cl = (ls[i]['left'])
+        ct = (ls[i]['top'])
+        if cl >= 1000 and cl <= 1140 and ct > 150: # GET **Suggested Retail Price** PRICE
+            if len(cn) > 1: # only print if it represents valid class
                 cn = cn.replace(".","")
                 divclass = str(cn + " " + "body")
+                ### print(divclass) # Use this variable with f-string to get each speaker description
                 tx = r.html.xpath(f'//div[@class="{divclass}"]/p[@class="p0"]/span[@class="c0"]/text()')
-                print(tx)
-                txs = tx
-    #
-    print ("Check output CSV! - Decriptions of the Used/Demo Gear!")
-    #
+                tx = [x.replace("\xa0", "") for x in tx]
+
+                try:
+                    if len(tx[0]) >= 0: #and len(tx[0]) < 14:
+                        ls_suggp.append(tx)
+
+                    else:
+                        ls_suggp.append("*")
+
+                except:
+                    pass
+
+    ls_suggp.append("*") # fix the 2 x blanks
+    ls_suggp.append("*")
+    #~~~~~~~~~~~~~~~~
+
+    print(ls_desc)
+    print(str(len(ls_desc)))
+    print("__")
+
+    print(ls_sellp)
+    print(str(len(ls_sellp)))
+    print("__")
+
+    print(ls_suggp)
+    print(str(len(ls_suggp)))
+    print("__")
+
+zipped = zip(ls_desc,ls_sellp,ls_suggp)
+rows = list(zipped)
+#
+header = ['Description', 'Selling Price', 'Suggested Price']
+#
+with open('a1.csv', 'wt') as f:
+    csv_writer = csv.writer(f)
+    csv_writer.writerow(header)
+    csv_writer.writerows(rows)
+#     for i in x:
+#         #Write item to outcsv
+#         writer.writerow([x[0], x[1], x[2]])
