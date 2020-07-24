@@ -1,15 +1,16 @@
-#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-#
-#   |r|e|d|a|n|d|g|r|e|e|n|.|c|o|.|u|k|    #
-#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-#
+# -*- coding: utf-8 -*-
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#|r|e|d|a|n|d|g|r|e|e|n|.|c|o|.|u|k|
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 '''        Scraping the impossible?         '''
 '''        Thanks to Code Monkey King       '''
 
 # ROUND, ITEM GETTER, VARIABLE IN XPATH PREDICATE #
 
-from requests_html import HTMLSession
-import json
+import csv
 from operator import itemgetter
+from requests_html import HTMLSession
 #
 #
 ls = []
@@ -33,10 +34,12 @@ def css_dict(style):
 if __name__ == "__main__":
 
     session = HTMLSession()
-    url='http://audioeden.com/useddemo-gear/4525583102'
 
+    # URL of a Non Sequential CSS Site :
+    url='http://audioeden.com/useddemo-gear/4525583102'
     r = session.get(url)
 
+    # Get the <style> css to parse for column px, and row px values
     style = r.html.xpath("//style/text()")
 
     # put CSS into list so the top and left px can be found
@@ -55,15 +58,17 @@ if __name__ == "__main__":
 
     # get class name from dict, and get the matching text using the
     # "NAME" of the CSS STYLE to match the CLASS NAME - remove oddities
-
+    print("Next - let's match sorted names with CSS / class names")
     ls_len = len(ls)
     print(f"Length of List ={ls_len}")
+    
     for i in range(ls_len):
         cn = (ls[i]['name'])
         cl = (ls[i]['left'])
         ct = (ls[i]['top'])
+        print (cn, cl, ct)
         if len(cn) > 1: # only print if it represents valid class
-            if cl ==   300:
+            if cl == 300: # get TEXT
                 ### print(cn, cl, ct)
                 cn = cn.replace(".","")
                 divclass = str(cn + " " + "body")
@@ -71,6 +76,19 @@ if __name__ == "__main__":
                 tx = r.html.xpath(f'//div[@class="{divclass}"]/p[@class="p0"]/span[@class="c0"]/text()')
                 tx = [x.replace("\xa0", "") for x in tx]
                 print(tx)
+                txd = tx
+            if cl > 300 and cl < 1000: # GET SELLING PRICE
+                cn = cn.replace(".","")
+                divclass = str(cn + " " + "body")
+                tx = r.html.xpath(f'//div[@class="{divclass}"]/p[@class="p0"]/span[@class="c0"]/text()')
+                print(tx)
+                txp = tx
+            if cl > 999 and cl < 1300: # GET SALE PRICE
+                cn = cn.replace(".","")
+                divclass = str(cn + " " + "body")
+                tx = r.html.xpath(f'//div[@class="{divclass}"]/p[@class="p0"]/span[@class="c0"]/text()')
+                print(tx)
+                txs = tx
     #
-    print ("Decriptions of the Used/Demo Gear!")
+    print ("Check output CSV! - Decriptions of the Used/Demo Gear!")
     #
